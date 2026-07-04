@@ -5,21 +5,8 @@ A daily dev + activity report for Windows, written in pure PowerShell. No depend
 Every 10 minutes it takes a silent snapshot of what you're doing (focused app, idle time, running games). Every evening it builds a report combining that with your git commits across all your projects, plus system stats.
 
 ```
-╭──────────────────────────────────────────────╮
-│  SHIPD · daily report · 2026-07-04           │
-╰──────────────────────────────────────────────╯
- SYSTEM
-   CPU  ██░░░░░░░░░░  14%          GPU  3% 41C
-   RAM  ██████░░░░░░  7.9/15.4 GB
+<img width="1912" height="950" alt="image" src="https://github.com/user-attachments/assets/0484611d-e286-4bd2-a4ac-4a79e6a867d0" />
 
- GIT
-   shipd · 3 commit(s) · +214 lines
-     a1b2c3d fix window flashing on scheduled runs
-
- ACTIVITY
-   41 snapshots · 32 active · 9 idle
-   Code                   ████████████████ 25
-   chrome                 ██████░░░░░░░░░░ 10
 ```
 
 ## Requirements
