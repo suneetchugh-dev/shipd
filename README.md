@@ -33,10 +33,25 @@ Open a **new** terminal, and `shipd` works from any folder.
 | `shipd report 2026-07-01` | Report for a past date |
 | `shipd list` | List all saved reports |
 | `shipd snapshot` | Take one activity snapshot manually |
+| `shipd mem` | RAM breakdown: in use / standby cache / modified / free |
+| `shipd free` | Free RAM by purging the standby cache (admin prompt; also the `f` key in the dashboard) |
 | `shipd stop` / `shipd start` | Pause / resume background tracking |
 | `shipd restart` | Re-register the scheduled tasks (run after editing `config.json`) |
 | `shipd unschedule` | Remove the scheduled tasks completely |
 | `shipd install` | Add the `shipd` command to your PowerShell profile |
+
+## Freeing RAM (RAMMap-lite)
+
+Windows keeps closed apps' data in RAM as **standby cache**, which is why Task
+Manager can show 90% memory used while nothing is running. The dashboard's
+MEMORY panel shows the real split, and pressing **f** (or running `shipd free`)
+purges the standby cache — the same operation as Sysinternals RAMMap's
+"Empty Standby List" — and shows how much was released.
+
+This is manual-only (the background tasks never touch it) and non-destructive:
+it only drops cache, never running apps' memory. The one trade-off is that the
+next launch of a recently closed app may be marginally slower while Windows
+re-reads it from disk. Needs one UAC click; declining it simply cancels.
 
 ## Configuration — `config.json`
 
