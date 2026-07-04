@@ -42,4 +42,17 @@ foreach ($dim in @(@(120, 30), @(110, 24), @(160, 45))) {
     if ($bad) { throw "frame ${W}x${H}: ragged lines (visible width != $W):`n$($bad -join "`n")" }
 }
 
+# --- memory breakdown sanity ---
+. "$PSScriptRoot\memory.ps1"
+$m = Get-MemoryBreakdown
+if ($null -ne $m) {
+    foreach ($p in 'total', 'in_use', 'standby', 'modified', 'free') {
+        if ($m.$p -lt 0) { throw "memory: negative $p ($($m.$p))" }
+    }
+    $sum = $m.in_use + $m.standby + $m.modified + $m.free
+    if ([math]::Abs($sum - $m.total) -gt $m.total * 0.1) {
+        throw "memory: parts sum $sum GB but total is $($m.total) GB"
+    }
+}
+
 Write-Output 'all checks passed'
