@@ -9,7 +9,7 @@ public static extern int NtSetSystemInformation(int infoClass, ref int info, int
 public static extern bool OpenProcessToken(IntPtr proc, uint access, out IntPtr token);
 [DllImport("advapi32.dll", SetLastError=true)]
 public static extern bool LookupPrivilegeValue(string host, string name, out long luid);
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]  // Pack=1: Luid must sit at offset 4 (DWORD + LUID + DWORD)
 public struct TOKEN_PRIVILEGES { public uint Count; public long Luid; public uint Attr; }
 [DllImport("advapi32.dll", SetLastError=true)]
 public static extern bool AdjustTokenPrivileges(IntPtr token, bool disableAll, ref TOKEN_PRIVILEGES state, int len, IntPtr prev, IntPtr ret);

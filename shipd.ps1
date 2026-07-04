@@ -1,9 +1,9 @@
 # shipd — daily dev + activity report.
-# Usage: shipd [dashboard] | snapshot | report [date] | list | install | schedule | start | stop | restart | unschedule
+# Usage: shipd [dashboard] | snapshot | report [date] | mem | free | list | install | schedule | start | stop | restart | unschedule
 # No command = dashboard.
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('dashboard', 'snapshot', 'report', 'list', 'install', 'schedule', 'start', 'stop', 'restart', 'unschedule')]
+    [ValidateSet('dashboard', 'snapshot', 'report', 'mem', 'free', 'list', 'install', 'schedule', 'start', 'stop', 'restart', 'unschedule')]
     [string]$Command = 'dashboard',
     [Parameter(Position = 1)][datetime]$Date = (Get-Date)
 )
@@ -11,6 +11,7 @@ param(
 $config = Get-Content (Join-Path $PSScriptRoot 'config.json') -Raw | ConvertFrom-Json
 . (Join-Path $PSScriptRoot 'git_scan.ps1')
 . (Join-Path $PSScriptRoot 'activity.ps1')
+. (Join-Path $PSScriptRoot 'memory.ps1')
 . (Join-Path $PSScriptRoot 'report.ps1')
 . (Join-Path $PSScriptRoot 'dashboard.ps1')
 $logPath = Join-Path $PSScriptRoot 'snapshots.jsonl'
@@ -50,6 +51,32 @@ switch ($Command) {
             Get-ChildItem $reportsDir -Filter '*.txt' | Sort-Object Name | ForEach-Object { Write-Output $_.Name }
         }
         else { Write-Output 'no saved reports yet' }
+    }
+
+    'mem' {
+        $m = Get-MemoryBreakdown
+        if (-not $m) { Write-Output 'memory counters unavailable on this system' }
+        else { Write-Output ("total {0} GB · in use {1} · standby cache {2} · modified {3} · free {4}" -f $m.total, $m.in_use, $m.standby, $m.modified, $m.free) }
+    }
+
+    'free' {
+        $before = Get-MemoryBreakdown
+        if (-not $before) { Write-Output 'memory counters unavailable on this system'; break }
+        $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        if ($admin) {
+            $freed = Clear-StandbyList
+        }
+        else {
+            try {
+                Start-Process pwsh -Verb RunAs -Wait -WindowStyle Hidden -ArgumentList '-NoProfile', '-File', $PSCommandPath, 'free'
+            }
+            catch { Write-Output 'cancelled (UAC declined)'; break }
+            $freed = [math]::Round([math]::Max(0, $before.standby - (Get-MemoryBreakdown).standby), 2)
+        }
+        $m = Get-MemoryBreakdown
+        Write-Output "freed $freed GB standby cache"
+        Write-Output ("now: in use {0} · standby {1} · modified {2} · free {3} GB" -f $m.in_use, $m.standby, $m.modified, $m.free)
     }
 
     { $_ -in 'schedule', 'restart' } {
