@@ -83,8 +83,18 @@ foreach ($entry in $pathEntries) {
 }
 if (-not $found) {
     $newPath = ($pathEntries + '%LOCALAPPDATA%\shipd') -join ';'
-    [Environment]::SetEnvironmentVariable('Path', $newPath, 'User')
+    Set-ItemProperty -Path 'HKCU:\Environment' -Name 'Path' -Value $newPath -Type ExpandString
     Write-Host "Added %LOCALAPPDATA%\shipd to persistent User PATH"
+    
+    # Broadcast environment change so new terminals pick it up instantly without logging off/rebooting
+    try {
+        $sig = '[DllImport("user32.dll",SetLastError=true,CharSet=CharSet.Auto)] public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out IntPtr lpdwResult);'
+        $win32 = Add-Type -MemberDefinition $sig -Name "Win32SendMessage" -Namespace "Win32" -PassThru -ErrorAction SilentlyContinue
+        if ($win32) {
+            $result = [IntPtr]::Zero
+            [void]$win32::SendMessageTimeout([IntPtr]0xffff, 0x001A, [IntPtr]::Zero, "Environment", 2, 5000, [ref]$result)
+        }
+    } catch {}
 }
 
 # Update current process PATH
