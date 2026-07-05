@@ -28,6 +28,12 @@ Re-running the same line later **updates** shipd without touching your config,
 snapshots, or reports. If you don't have PowerShell 7 yet, the installer
 offers to install it via winget.
 
+If your network blocks `raw.githubusercontent.com` (some ISPs do), use the mirror:
+
+```powershell
+irm https://cdn.jsdelivr.net/gh/harsh4k/shipd@master/install.ps1 | iex
+```
+
 <details>
 <summary>Manual setup (for devs)</summary>
 
