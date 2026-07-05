@@ -40,7 +40,7 @@ switch ($Command) {
         # CurrentUserAllHosts so it works in Windows Terminal AND the VS Code terminal
         $profilePath = $PROFILE.CurrentUserAllHosts
         if (-not (Test-Path $profilePath)) { New-Item -ItemType File -Force $profilePath | Out-Null }
-        if ((Get-Content $profilePath -Raw) -notmatch 'function shipd') {
+        if ("$(Get-Content $profilePath -Raw)" -notmatch 'function shipd') {   # "$()": empty file gives $null, and $null -notmatch returns @() (falsy)
             Add-Content $profilePath "`nfunction shipd { & '$PSCommandPath' @args }"
         }
         Write-Output "installed: open a NEW terminal, then run 'shipd report' from any folder"

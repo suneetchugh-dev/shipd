@@ -12,7 +12,24 @@ Every 10 minutes it takes a silent snapshot of what you're doing (focused app, i
 - [PowerShell 7+](https://aka.ms/powershell) (`pwsh`) — the built-in Windows PowerShell 5 will not work
 - git (for the commit report)
 
-## Setup
+## Install (one command)
+
+Paste this into any PowerShell window:
+
+```powershell
+irm https://raw.githubusercontent.com/harsh4k/shipd/master/install.ps1 | iex
+```
+
+It downloads shipd to `%LOCALAPPDATA%\shipd`, asks one question (where your
+projects live), adds the `shipd` command to your terminal, and starts the
+background tracking. Then open a **new** terminal and type `shipd`.
+
+Re-running the same line later **updates** shipd without touching your config,
+snapshots, or reports. If you don't have PowerShell 7 yet, the installer
+offers to install it via winget.
+
+<details>
+<summary>Manual setup (for devs)</summary>
 
 ```powershell
 git clone https://github.com/harsh4k/shipd.git
@@ -22,7 +39,7 @@ notepad config.json     # point git_roots at YOUR projects folder (important!)
 .\shipd.ps1 schedule    # starts background snapshots + the daily report
 ```
 
-Open a **new** terminal, and `shipd` works from any folder.
+</details>
 
 ## Commands
 
